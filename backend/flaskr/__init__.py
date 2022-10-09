@@ -1,4 +1,6 @@
 import os
+import sys
+from tracemalloc import start
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -6,35 +8,112 @@ import random
 
 from models import setup_db, Question, Category
 
+# define db
+db = SQLAlchemy()
+
 QUESTIONS_PER_PAGE = 10
+
+# pagination handler
+def do_paginate_questions(request, all_questions):
+    page = request.args.get('page', 1, type=int) # get the page default index
+    start_paginate_index = (page - 1) * QUESTIONS_PER_PAGE
+    end_paginate_index =  start_paginate_index + QUESTIONS_PER_PAGE
+    questions = [question.format() for question in all_questions]
+    
+    # retrieve the current set of questions
+    current_questions = questions[start_paginate_index:end_paginate_index]
+    
+    return current_questions
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
+ 
+    # Setting up CORS for * origins
+    cors = CORS(app, resources={r"/api/v1.0/*": {"origins":"*"}})
+    
+    
+    # Setting up ACCESS-CONTROL-ALLOW HEADERS
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers',
+                             'Content-Type, Authorization, true')
+        response.headers.add('Access-Control-Allow-Methods',
+                             'GET, POST, PATCH, DELETE, OPTIONS')
+        
+        #return response
+        return response
+    
+    
+    # Route to handle GET requests for all available categories
+    @app.route('/categories')
+    def get_categories():
+        
+        # retrieve all categories and add to dict
+        categories = Category.query.all()
+        
+        available_categories = {}
+        
+        # format the categories data
+        for category in categories:
+            available_categories[category.id] = category.type
 
-    """
-    @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
-    """
+        # If no categories, abort the request
+        if (len(available_categories) == 0):
+            abort(404)
 
-    """
-    @TODO: Use the after_request decorator to set Access-Control-Allow
-    """
-
-    """
-    @TODO:
-    Create an endpoint to handle GET requests
-    for all available categories.
-    """
+        # return category response object to frontend
+        return jsonify({
+            'success': True,
+            'categories': available_categories
+        })
 
 
-    """
-    @TODO:
-    Create an endpoint to handle GET requests for questions,
-    including pagination (every 10 questions).
-    This endpoint should return a list of questions,
-    number of total questions, current category, categories.
+    # Retrieve(GET) the questions using the pagination value 
+    @app.route('/questions')
+    def get_questions():
+        # Retrieve questions and paginate
+        all_questions = Question.query.all()
+        
+        # get the count of questions
+        total_questions = len(all_questions)
+        
+        # get current questions
+        get_current_questions = do_paginate_questions(request, all_questions)
 
+        # If no questions, abort the request
+        if (len(get_current_questions) == 0):
+            abort(404)
+
+
+        # Handle possible errors
+        try:
+            # get categories
+            categories = Category.query.all()
+            
+            categories_collection = {}
+            
+            # format the categories data
+            for category in categories:
+                categories_collection[category.id] = category.type
+
+            # return reponse object to frontend
+            return jsonify({
+                'success': True,
+                'questions': get_current_questions,
+                'total_questions': total_questions,
+                'categories': categories_collection
+            })
+        except:
+            db.session.rollback()
+            print(sys.exc_info())
+            abort(422)
+        finally:
+            db.session.close() # close the db
+    
+    
+    """
     TEST: At this point, when you start the application
     you should see questions and categories generated,
     ten questions per page and pagination at the bottom of the screen for three pages.
