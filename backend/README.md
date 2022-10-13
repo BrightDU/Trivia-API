@@ -89,7 +89,126 @@ You will need to provide detailed documentation of your API endpoints including 
   "6": "Sports"
 }
 ```
+`GET '/questions?page=<page_number>'` 
+- Fetches a paginated dictionary of questions using all available categories
+- *Request parameters (optional):* page:int 
+- *Example response:*  
+```json
+{
+  "categories": {
+    "1": "Science", 
+    "2": "Art", 
+    "3": "Geography", 
+    "4": "History", 
+    "5": "Entertainment", 
+    "6": "Sports"
+  }, 
+  "current_category": null, 
+  "questions": [
+    {
+      "answer": "Maya Angelou", 
+      "category": 4, 
+      "difficulty": 2, 
+      "id": 5, 
+      "question": "Whose autobiography is entitled 'I Know Why the Caged Bird Sings'?"
+    },  
+    {
+      "answer": "Escher", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 16, 
+      "question": "Which Dutch graphic artist\u2013initials M C was a creator of optical illusions?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 2
+}
+```
+DELETE `/questions/<question_id>`
+Deletes an existing questions from the repository of available questions
+- *Request arguments:* question_id:int 
+- *Example response:* 
+```json
+{
+  "deleted": "28", 
+  "success": true
+}
+```
 
+POST `/questions`
+Adds a new question to the repository of available questions
+- *Request body:* {question:string, answer:string, difficulty:int, category:string}
+- *Example response:* 
+```json
+{
+  "created": 29, 
+  "success": true
+}
+```
+POST `/questions/search`
+Fetches all questions where a substring matches the search term (not case-sensitive)
+- *Request body:* {searchTerm:string}
+- *Example response:*
+```json
+{
+  "current_category": null, 
+  "questions": [
+    {
+      "answer": "Lisbon", 
+      "category": 2, 
+      "difficulty": 1, 
+      "id": 29, 
+      "question": "What is the capital of Portugal?"
+    }
+  ], 
+  "success": true, 
+  "total_questions": 1
+}
+```
+
+GET `/categories/<int:category_id>/questions`
+Fetches a dictionary of questions using the provided category argument
+- *Request argument:* category_id:int
+- *Example response:*
+```json
+{
+  "current_category": 1, 
+  "questions": [
+    {
+      "answer": "The Liver", 
+      "category": 1, 
+      "difficulty": 4, 
+      "id": 20, 
+      "question": "What is the heaviest organ in the human body?"
+    }, 
+    {
+      "answer": "Alexander Fleming", 
+      "category": 1, 
+      "difficulty": 3, 
+      "id": 21, 
+      "question": "Who discovered penicillin?"
+    }, 
+  ], 
+  "success": true, 
+  "total_questions": 2
+}
+```
+POST `/quizzes`
+Fetches a random question within a specified category. Previously asked questions are not inclued
+- *Request body:* {previous_questions: arr, quiz_category: {id:int, type:string}}
+- *Example response*: 
+```json
+{
+  "question": {
+    "answer": "The Liver", 
+    "category": 1, 
+    "difficulty": 4, 
+    "id": 20, 
+    "question": "What is the heaviest organ in the human body?"
+  }, 
+  "success": true
+}
+```
 ## Testing
 
 Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.
