@@ -89,7 +89,7 @@ You will need to provide detailed documentation of your API endpoints including 
   "6": "Sports"
 }
 ```
-`GET '/questions?page=<page_number>'` 
+`GET '/api/v1.0/questions?page=<page_number>'` 
 - Fetches a paginated dictionary of questions using all available categories
 - *Request parameters (optional):* page:int 
 - *Example response:*  
@@ -124,7 +124,7 @@ You will need to provide detailed documentation of your API endpoints including 
   "total_questions": 2
 }
 ```
-DELETE `/questions/<question_id>`
+DELETE `/api/v1.0/questions/<question_id>`
 Deletes an existing questions from the repository of available questions
 - *Request arguments:* question_id:int 
 - *Example response:* 
@@ -135,7 +135,7 @@ Deletes an existing questions from the repository of available questions
 }
 ```
 
-POST `/questions`
+POST `/api/v1.0/questions`
 Adds a new question to the repository of available questions
 - *Request body:* {question:string, answer:string, difficulty:int, category:string}
 - *Example response:* 
@@ -145,7 +145,7 @@ Adds a new question to the repository of available questions
   "success": true
 }
 ```
-POST `/questions/search`
+POST `/api/v1.0/questions/search`
 Fetches all questions where a substring matches the search term (not case-sensitive)
 - *Request body:* {searchTerm:string}
 - *Example response:*
@@ -166,7 +166,7 @@ Fetches all questions where a substring matches the search term (not case-sensit
 }
 ```
 
-GET `/categories/<int:category_id>/questions`
+GET `/api/v1.0/categories/<int:category_id>/questions`
 Fetches a dictionary of questions using the provided category argument
 - *Request argument:* category_id:int
 - *Example response:*
@@ -193,7 +193,7 @@ Fetches a dictionary of questions using the provided category argument
   "total_questions": 2
 }
 ```
-POST `/quizzes`
+POST `/api/v1.0/quizzes`
 Fetches a random question within a specified category. Previously asked questions are not inclued
 - *Request body:* {previous_questions: arr, quiz_category: {id:int, type:string}}
 - *Example response*: 
