@@ -1,3 +1,4 @@
+from settings import DB_NAME, DB_USER, DB_PASSWORD
 import os
 from sqlalchemy import Column, String, Integer, create_engine
 from flask_sqlalchemy import SQLAlchemy

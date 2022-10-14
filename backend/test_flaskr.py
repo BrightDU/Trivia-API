@@ -1,3 +1,4 @@
+from settings import DB_NAME, DB_USER, DB_PASSWORD
 import os
 import unittest
 import json
@@ -88,12 +89,12 @@ class TriviaTestCase(unittest.TestCase):
         question = Question.query.filter(
             Question.id == question.id).one_or_none()
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], True)
         self.assertEqual(data['deleted'], str(question_id))
         self.assertEqual(question, None)
 
-    # Question Delete Route
+    # Question Delete Route(unprocessable) - using an invalid id
     def test_422_sent_when_deleting_non_existing_question(self):
         res = self.client().delete('/questions/a')
         data = json.loads(res.data)
@@ -145,7 +146,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertIsNotNone(data['total_questions'])
 
     # Search Not Found
-    def test_404_search_question(self):
+    def test_404_search_question_not_found(self):
         new_search = {
             'searchTerm': '',
         }
@@ -181,19 +182,19 @@ class TriviaTestCase(unittest.TestCase):
         new_quiz_round = {'previous_questions': [],
                           'quiz_category': {'type': 'Entertainment', 'id': 5}}
 
-        res = self.client().post('/quizzes', json=new_quiz_round)
+        res = self.client().post('/quiz', json=new_quiz_round)
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data['success'], True)
 
     # Quiz Not Found
     def test_404_play_quiz(self):
         new_quiz_round = {'previous_questions': []}
-        res = self.client().post('/quizzes', json=new_quiz_round)
+        res = self.client().post('/quiz', json=new_quiz_round)
         data = json.loads(res.data)
 
-        self.assertEqual(res.status_code, 422)
+        self.assertEqual(res.status_code, 404)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "unprocessable")
     
